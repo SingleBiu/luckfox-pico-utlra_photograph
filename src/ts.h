@@ -2,7 +2,7 @@
  * @Author: SingleBiu
  * @Date: 2021-07-26 15:27:24
  * @LastEditors: SingleBiu
- * @LastEditTime: 2024-10-14 21:00:14
+ * @LastEditTime: 2024-10-15 12:55:25
  * @Description: file content
  */
 #ifndef  __TS_H__
@@ -17,13 +17,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#define TRUE  1
+#define FALSE 0
+
 #define MOVE_EMPTY -1
 #define MOVE_UP 1
 #define MOVE_DOWN 2
 #define MOVE_LEFT 3
 #define MOVE_RIGHT 4
-
-
 
 // enum ts_type
 // {
@@ -35,10 +36,10 @@
 // };
 
 // CAUTION
-// 触摸屏分辨率为1024x600
+// 触摸屏分辨率为720x720
 
-// int get_user_input(void);
 void* get_user_input(int _ts_fd);
+void* get_user_input_click(int _ts_fd);
 int touch_init();
 
 

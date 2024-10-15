@@ -2,14 +2,15 @@
  * @Author: SingleBiu
  * @Date: 2021-07-26 15:27:24
  * @LastEditors: SingleBiu
- * @LastEditTime: 2024-10-15 08:06:37
+ * @LastEditTime: 2024-10-15 12:59:49
  * @Description: file content
  */
 
 #include "ts.h"
 
 extern int TOUCH_EVENT;
-
+extern int btn_l;
+extern int btn_r;
 
 int touch_init()
 {
@@ -21,9 +22,6 @@ int touch_init()
 	}
 	return fd;
 }
-
-
-
 
 /**
  * @description:获取用户移动的方向
@@ -123,10 +121,62 @@ void* get_user_input(int _ts_fd)
 			 * 	3：左滑 
 			 *  4：右滑
 			 */
-			printf("\n TOUCH_EVENT = %d\n",TOUCH_EVENT);
+			// printf("\n TOUCH_EVENT = %d\n",TOUCH_EVENT);
 			
 			break;
 		}
 	}
 }
 
+/**
+ * @description:获取用户的点击
+ * @param {*}
+ * @return {*}
+ */
+void* get_user_input_click(int _ts_fd)
+{
+	// 触摸屏文件描述符
+	int fd = _ts_fd;
+
+	int x1, y1;
+	struct input_event ev;
+
+	while (1)
+	{
+		int r = read(fd, &ev, sizeof(ev));
+		if (r != sizeof(ev))
+		{
+			continue;
+		}
+
+		//判断事件类型是否为触摸屏的x轴，并且获取x轴坐标
+        if(ev.type == EV_ABS && ev.code == ABS_MT_POSITION_X)
+        {
+            x1 = ev.value; 
+        }
+        //判断事件类型是否为触摸屏的y轴，并且获取y轴坐标
+        if(ev.type == EV_ABS && ev.code == ABS_MT_POSITION_Y)
+        {
+            y1 = ev.value; 
+        }
+        //判断是否松手
+        if(ev.type == EV_ABS && ev.code == ABS_MT_TRACKING_ID && ev.value == -1)
+        {
+            //打印坐标值
+            printf("X:%d,Y:%d\n", x1, y1);
+			if (x1 > 0 && x1 < 160 && y1 < 720 && y1 > 600)
+			{
+				btn_l = TRUE;
+			}
+
+			if (x1 > 560 && x1 < 720 && y1 < 720 && y1 > 600)
+			{
+				btn_r = TRUE;
+			}
+			x1 = -1;
+			y1 = -1;
+            break;
+        }			
+		break;
+	}
+}

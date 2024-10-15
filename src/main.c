@@ -2,7 +2,7 @@
  * @Author: SingleBiu
  * @Date: 2021-07-22 14:48:40
  * @LastEditors: SingleBiu
- * @LastEditTime: 2024-10-15 08:07:07
+ * @LastEditTime: 2024-10-15 13:04:25
  * @Description: 一个简单的能展示bmp图片和jpg图片的电子相册
  */
 #include"lcd.h"
@@ -11,6 +11,10 @@
 #include"ts.h"
 #include"node.h"
 #include<pthread.h>
+
+// 按钮
+int btn_l = FALSE;
+int btn_r = FALSE;
 
 // 定义存放图片的链表
 Head_Node *H = NULL;
@@ -23,11 +27,17 @@ void *thread_touch()
 {
     while(1)
 	{
-		// get_xy(&x,&y,ts_fd);
-		// x = x / 1024 * 800;
-		// y = y / 600  * 480;
         get_user_input(ts_fd);
 	}
+}
+
+void *thread_touch_click()
+{
+    while (1)
+    {
+        get_user_input_click(ts_fd);
+    }
+    
 }
 
 int main(int argc, char *argv[])
@@ -55,47 +65,70 @@ int main(int argc, char *argv[])
     // 开始的图片
     bmp_display("startup.bmp",0,0);
 
-    printf("Line:%d Func:%s",__LINE__,__func__);
+    jpg_displasy("left.jpg",0,600);
+    jpg_displasy("right.jpg",560,600);
 
     ts_fd = touch_init();
 
-    printf("Line:%d Func:%s",__LINE__,__func__);
 
     pthread_t ts;
-    int res = pthread_create(&ts,NULL,thread_touch,NULL);
+    int res = pthread_create(&ts,NULL,thread_touch_click,NULL);
     if (res != 0)
     {
         perror("Failed to create pthread");
         exit(res);
     }
 
-    printf("Line:%d Func:%s",__LINE__,__func__);
-
     while (1)
     {
-        // // 获得触摸屏幕输入
-        // int mv = get_user_input(ts_fd);
-        // if (mv == MOVE_RIGHT)
-        if (TOUCH_EVENT == MOVE_RIGHT)
+        if (TRUE == btn_l)
         {
             lcd_draw_rect(0,0,WIDTH,HEIGHT,WHITE);
             // 上一张
             ptr = ptr->prev;
             display(ptr->pathname,0,0);
-            TOUCH_EVENT = MOVE_EMPTY;
+            btn_l = FALSE;
+            jpg_displasy("left.jpg",0,600);
+            jpg_displasy("right.jpg",560,600);
         }
-        // else if (mv == MOVE_LEFT)
-        else if (TOUCH_EVENT == MOVE_LEFT)
+        
+        if (TRUE == btn_r)
         {
             lcd_draw_rect(0,0,WIDTH,HEIGHT,WHITE);
             // 下一张
             ptr = ptr->next;
             display(ptr->pathname,0,0);
-            TOUCH_EVENT = MOVE_EMPTY;
+            btn_r = FALSE;
+            jpg_displasy("left.jpg",0,600);
+            jpg_displasy("right.jpg",560,600);
         }
-
+        
         
     }
+    
+    // while (1)
+    // {
+    //     // // 获得触摸屏幕输入
+    //     // int mv = get_user_input(ts_fd);
+    //     // if (mv == MOVE_RIGHT)
+    //     if (TOUCH_EVENT == MOVE_RIGHT)
+    //     {
+    //         lcd_draw_rect(0,0,WIDTH,HEIGHT,WHITE);
+    //         // 上一张
+    //         ptr = ptr->prev;
+    //         display(ptr->pathname,0,0);
+    //         TOUCH_EVENT = MOVE_EMPTY;
+    //     }
+    //     // else if (mv == MOVE_LEFT)
+    //     else if (TOUCH_EVENT == MOVE_LEFT)
+    //     {
+    //         lcd_draw_rect(0,0,WIDTH,HEIGHT,WHITE);
+    //         // 下一张
+    //         ptr = ptr->next;
+    //         display(ptr->pathname,0,0);
+    //         TOUCH_EVENT = MOVE_EMPTY;
+    //     }
+    // }
     
 
     while(1){}
