@@ -7,5 +7,6 @@
 -->
 Usage:  
 Into the pic directory.  
+main left.jpg right.jpg startup.bmp /bmp_jpg
 Use:  
-```./main ./```  
+```./main ./bmp_jpg```  
